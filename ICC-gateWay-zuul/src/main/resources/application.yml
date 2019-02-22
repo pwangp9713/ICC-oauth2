@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    joda-date-time-format: yyyy-MM-dd HH:mm:ss
+    locale: zh_CN
+    time-zone: GMT+8
+server:
+  port: 8084
+zuul:
+
+  routes:
+    uaa:
+      path: /uaa/**
+      sensitiveHeaders: "*"
+      serviceId: oauthSerivce
+      custom-sensitive-headers: true
+    userService:                    #自定义的转发规则
+      path: /api/user/**
+      sensitiveHeaders: "*"
+      service-id: userSerivce                    #可以是一个注册的服务名
+    orderService:
+      path: /api/order/**
+      sensitiveHeaders: "*"
+      service-id: orderSerivce
+    baidu:
+      path: /api/a/**
+      url: http://www.baidu.com    #  url: 可以是一个物理的url
+  add-proxy-headers: true
+
+---
+spring:
+  profiles: dev
+  redis:
+    database: 0 # Redis数据库索引（默认为0）
+    host: localhost
+    port: 6379
+    pool:
+      - max-active: 8
+      - max-wait: 1
+      - max-idle: 8
+      - min-idle: 0
+    timeout: 5000
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    lease-renewal-interval-in-seconds: 5  #每隔几秒告诉eureka服务器我还存活，用于心跳检测
+    lease-expiration-duration-in-seconds: 10 #如果心跳检测一直没有发送，10秒后会从eureka服务器中将此服务剔除
+
+security:
+  oauth2:
+    ignored: /api/a/**,/uaa/** ,/doc.html,/document.html,**/v2/api-docs,/oauth/** ,/login.html ,/user/login,/**/**.css ,/**/**.js
+    token:
+      store:
+        type: jwt   #jwt,redis 要与oauth2-server的配置对应
+
+
+#配置日志
+logging:
+  #配置日志文件路径 不同目录下的日志可配置不同级别
+  level:
+    root: INFO
+    org.springframework.cloud.sleuth: DEBUG
+    org.springframework.security: DEBUG
+---
+spring:
+  profiles: docker
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server1:8761/eureka/,http://eureka-server2:8762/eureka/
+  instance:
+    prefer-ip-address: true

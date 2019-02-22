@@ -1,0 +1,40 @@
+
+spring:
+  profiles:
+    active: dev
+#配置日志
+logging:
+  #配置日志文件路径 不同目录下的日志可配置不同级别
+  level:
+    root: INFO
+    org.springframework.cloud.sleuth: DEBUG
+    # org.springframework.web.servlet.DispatcherServlet: DEBUG
+---
+spring:
+  profiles: dev
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/test-user?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: test
+    password: test
+
+# mybatis包的扫描，还有就是映射文件设置 mybatis tk插件的使用
+mybatis:
+  type-aliases-package: package com.sinosoft.entity.model
+  mapper-locations: classpath:mapper/**/*Mapper.xml
+  #配置驼峰下划线
+  configuration:
+    map-underscore-to-camel-case: true
+
+mapper:
+  mappers:
+    - com.sinosoft.comm.mybatis.MyMapper
+  not-empty: false
+  identity: MYSQL
+
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql

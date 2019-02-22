@@ -1,0 +1,1 @@
+http://localhost:8043/oauth/token?username=admin&password=1234567&grant_type=password&scope=all&client_id=admin&client_secret=123456

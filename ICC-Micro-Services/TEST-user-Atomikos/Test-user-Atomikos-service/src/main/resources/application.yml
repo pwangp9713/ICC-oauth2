@@ -1,0 +1,135 @@
+server:
+  port: 8881                    # 指定该Eureka实例的端口
+spring:
+  profiles:
+    active: dev
+#配置日志
+logging:
+  #配置日志文件路径 不同目录下的日志可配置不同级别
+  level:
+    root: INFO
+    org.springframework.cloud.sleuth: DEBUG
+    # org.springframework.web.servlet.DispatcherServlet: DEBUG
+---
+spring:
+  profiles: dev
+#  cloud:
+#    config:
+#      uri: http://localhost:8780/
+#      profile: dev            # profile对应config server所获取的配置文件中的{profile}
+#      label: master           # 指定git仓库的分支，对应config server所获取的配置文件的{label}
+  datasource:
+    type:  com.alibaba.druid.pool.xa.DruidXADataSource
+    druid:
+#      aop-patterns:
+#        - com.sinosoft.*.service.*
+#        - com.sinosoft.*.service.impl.*
+
+      db1:
+        name: db1
+        url: jdbc:mysql://localhost:3306/test-order?useUnicode=true&characterEncoding=utf-8
+        username: test
+        password: test
+        # 下面为连接池的补充设置，应用到上面所有数据源中
+        # 初始化大小，最小，最大
+        initialSize: 5
+        minIdle: 5
+        maxActive: 20
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 30
+        validationQuery: SELECT 1
+        validationQueryTimeout: 10000
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        filters: stat,wall
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+        # 合并多个DruidDataSource的监控数据
+        useGlobalDataSourceStat: true
+
+      db2:
+        name: db2
+
+        url: jdbc:mysql://localhost:3306/test-user?useUnicode=true&characterEncoding=utf-8
+        username: test
+        password: test
+        # 下面为连接池的补充设置，应用到上面所有数据源中
+        # 初始化大小，最小，最大
+        initialSize: 5
+        minIdle: 5
+        maxActive: 20
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 30
+        validationQuery: SELECT 1
+        validationQueryTimeout: 10000
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        filters: stat,wall
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+        # 合并多个DruidDataSource的监控数据
+        useGlobalDataSourceStat: true
+  #jta相关参数配置
+  jta:
+#    log-dir: classpath:tx-logs
+    transaction-manager-id: txManager
+
+
+
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+---
+spring:
+  profiles: docker1
+  cloud:
+    config:
+      uri: http://eureka-server1:8780/
+      profile: dev            # profile对应config server所获取的配置文件中的{profile}
+      label: master           # 指定git仓库的分支，对应config server所获取的配置文件的{label}
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server1:8761/eureka/,http://eureka-server2:8762/eureka/
+  instance:
+    prefer-ip-address: true
+---
+spring:
+  profiles: docker2
+  cloud:
+    config:
+      uri: http://eureka-server1:8780/
+      profile: dev            # profile对应config server所获取的配置文件中的{profile}
+      label: master           # 指定git仓库的分支，对应config server所获取的配置文件的{label}
+server:
+  port: 8872
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server1:8761/eureka/,http://eureka-server2:8762/eureka/
+  instance:
+    prefer-ip-address: true
